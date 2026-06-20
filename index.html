@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Silveira Botanics</title>
 <style>
-:root{--bg:#0b1220;--panel:#111827;--line:#26354f;--text:#e5e7eb;--muted:#94a3b8;--green:#34d399;--amber:#fbbf24}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top left,#15382e 0,#0b1220 35%,#07101d 100%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{position:sticky;top:0;z-index:20;background:rgba(7,16,29,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}.wrap{max-width:1280px;margin:0 auto;padding:12px 18px}h1{margin:0;color:var(--green);font-size:clamp(22px,3.4vw,30px);line-height:1.1}.subtitle{color:var(--muted);font-size:14px;margin-top:4px}.tabs,.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}button,input,select{background:#0f172a;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}button{cursor:pointer}.tab.active{border-color:var(--green);color:var(--green);background:rgba(6,78,59,.35)}input{min-width:min(370px,100%)}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.stat{background:rgba(17,24,39,.75);border:1px solid var(--line);border-radius:14px;padding:12px}.num{font-size:24px;font-weight:800}.label{display:block;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:5px}main{max-width:1280px;margin:0 auto;padding:20px 18px 60px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}.card{background:linear-gradient(180deg,rgba(17,24,39,.97),rgba(15,23,42,.97));border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:315px;display:flex;flex-direction:column;cursor:pointer}.card:hover{border-color:#3f567a}.card-image,.thumb-placeholder{height:180px;background:#0b1220;border-bottom:1px solid rgba(38,53,79,.8)}.card-image img{display:block;width:100%;height:100%;object-fit:cover}.thumb-placeholder{display:flex;align-items:center;justify-content:center;padding:14px;text-align:center;color:#7c8aa5;font-size:12px;background:linear-gradient(135deg,rgba(21,56,46,.55),rgba(11,18,32,.95))}.body{padding:15px;display:flex;flex-direction:column;gap:12px;flex:1}.top{display:flex;justify-content:space-between;gap:10px}.badge{font-size:11px;border:1px solid var(--line);background:#0b1220;border-radius:999px;padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.family{color:var(--green);border-color:#14532d;background:rgba(6,78,59,.35)}.priority{color:var(--amber);border-color:#78350f;background:rgba(120,53,15,.25)}.name{font-size:20px;font-weight:800;font-style:italic;line-height:1.15}.common{color:var(--muted);font-size:13px;margin-top:3px}.notes{background:#0b1220;border:1px solid rgba(38,53,79,.8);border-radius:12px;padding:10px;font-size:12px;line-height:1.45;color:#cbd5e1;min-height:70px}.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mini div{background:#0b1220;border:1px solid rgba(38,53,79,.8);border-radius:12px;padding:9px;min-width:0}.value{display:block;font-size:12px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.footer{border-top:1px solid rgba(38,53,79,.8);padding-top:10px;display:flex;justify-content:space-between;gap:10px;color:#718096;font-size:11px}.empty{text-align:center;padding:50px 20px;color:var(--muted);border:1px dashed var(--line);border-radius:18px;background:rgba(17,24,39,.45);grid-column:1/-1}dialog{border:1px solid var(--line);border-radius:20px;background:#0f172a;color:var(--text);max-width:min(980px,94vw);width:980px;padding:0}dialog::backdrop{background:rgba(0,0,0,.65)}.modal-head{padding:18px 20px;background:#111827;border-bottom:1px solid var(--line);border-radius:20px 20px 0 0;display:flex;justify-content:space-between;gap:12px}.modal-body{padding:18px 20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-height:72vh;overflow:auto}.field{background:#0b1220;border:1px solid var(--line);border-radius:12px;padding:10px}.field.full{grid-column:1/-1}.field-title{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:6px}.field-value{font-size:13px;color:#e2e8f0;line-height:1.45;word-break:break-word}.hidden{display:none!important}@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.modal-body{grid-template-columns:1fr}input,select{width:100%}}
+:root{--bg:#0b1220;--panel:#111827;--line:#26354f;--text:#e5e7eb;--muted:#94a3b8;--green:#34d399;--amber:#fbbf24}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top left,#15382e 0,#0b1220 35%,#07101d 100%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{position:sticky;top:0;z-index:20;background:rgba(7,16,29,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}.wrap{max-width:1280px;margin:0 auto;padding:10px 18px}h1{margin:0;color:var(--green);font-size:clamp(18px,2.6vw,24px);line-height:1.05}.subtitle{color:var(--muted);font-size:13px;margin-top:2px}.tabs,.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}button,input,select{background:#0f172a;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px}button{cursor:pointer}.tab.active{border-color:var(--green);color:var(--green);background:rgba(6,78,59,.35)}input{min-width:min(370px,100%)}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}.stat{background:rgba(17,24,39,.75);border:1px solid var(--line);border-radius:14px;padding:12px}.num{font-size:24px;font-weight:800}.label{display:block;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:5px}main{max-width:1280px;margin:0 auto;padding:20px 18px 60px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}.card{background:linear-gradient(180deg,rgba(17,24,39,.97),rgba(15,23,42,.97));border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:315px;display:flex;flex-direction:column;cursor:pointer}.card:hover{border-color:#3f567a}.card-image,.thumb-placeholder{height:180px;background:#0b1220;border-bottom:1px solid rgba(38,53,79,.8)}.card-image img{display:block;width:100%;height:100%;object-fit:cover}.thumb-placeholder{display:flex;align-items:center;justify-content:center;padding:14px;text-align:center;color:#7c8aa5;font-size:12px;background:linear-gradient(135deg,rgba(21,56,46,.55),rgba(11,18,32,.95))}.body{padding:15px;display:flex;flex-direction:column;gap:12px;flex:1}.top{display:flex;justify-content:space-between;gap:10px}.badge{font-size:11px;border:1px solid var(--line);background:#0b1220;border-radius:999px;padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.family{color:var(--green);border-color:#14532d;background:rgba(6,78,59,.35)}.priority{color:var(--amber);border-color:#78350f;background:rgba(120,53,15,.25)}.name{font-size:20px;font-weight:800;font-style:italic;line-height:1.15}.common{color:var(--muted);font-size:13px;margin-top:3px}.notes{background:#0b1220;border:1px solid rgba(38,53,79,.8);border-radius:12px;padding:10px;font-size:12px;line-height:1.45;color:#cbd5e1;min-height:70px}.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mini div{background:#0b1220;border:1px solid rgba(38,53,79,.8);border-radius:12px;padding:9px;min-width:0}.value{display:block;font-size:12px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.footer{border-top:1px solid rgba(38,53,79,.8);padding-top:10px;display:flex;justify-content:space-between;gap:10px;color:#718096;font-size:11px}.empty{text-align:center;padding:50px 20px;color:var(--muted);border:1px dashed var(--line);border-radius:18px;background:rgba(17,24,39,.45);grid-column:1/-1}dialog{border:1px solid var(--line);border-radius:20px;background:#0f172a;color:var(--text);max-width:min(980px,94vw);width:980px;padding:0}dialog::backdrop{background:rgba(0,0,0,.65)}.modal-head{padding:18px 20px;background:#111827;border-bottom:1px solid var(--line);border-radius:20px 20px 0 0;display:flex;justify-content:space-between;gap:12px}.modal-body{padding:18px 20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-height:72vh;overflow:auto}.field{background:#0b1220;border:1px solid var(--line);border-radius:12px;padding:10px}.field.full{grid-column:1/-1}.field-title{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:6px}.field-value{font-size:13px;color:#e2e8f0;line-height:1.45;word-break:break-word}.hidden{display:none!important}@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.modal-body{grid-template-columns:1fr}input,select{width:100%}}
 </style>
 </head>
 <body>
@@ -20,6 +20,7 @@
     <div class="controls">
       <input id="search" type="search" placeholder="Search..." />
       <select id="priority"><option value="all">All priorities</option><option value="5">★★★★★ only</option><option value="4">★★★★ and up</option><option value="3">★★★ and up</option></select>
+      <select id="filterFamily"><option value="all">All families</option></select>
       <select id="filterA"><option value="all">All locations</option></select>
       <select id="filterB"><option value="all">All statuses</option></select>
     </div>
@@ -77,8 +78,10 @@ function current(){return mode === "plants" ? plants : seeds;}
 function unique(key){return [...new Set(current().map(x => x[key]).filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
 function fillFilters(){
   items=current();
-  const fA=$('filterA'); const fB=$('filterB');
+  const fA=$('filterA'); const fB=$('filterB'); const fFamily=$('filterFamily');
   fB.innerHTML='<option value="all">All statuses</option>';
+  fFamily.innerHTML='<option value="all">All families</option>';
+  unique('family').forEach(v => {const o=document.createElement('option'); o.value=v; o.textContent=v; fFamily.appendChild(o);});
   if(mode === 'plants'){
     fA.classList.remove('hidden');
     fA.innerHTML='<option value="all">All locations</option>';
@@ -93,21 +96,12 @@ function fillFilters(){
 function matches(x){
   const q=$('search').value.toLowerCase();
   const locationOk = mode === 'plants' ? ($('filterA').value==='all' || x.location === $('filterA').value) : true;
+  const familyOk = $('filterFamily').value==='all' || x.family === $('filterFamily').value;
   return (!q || Object.values(x).join(' ').toLowerCase().includes(q)) &&
     ($('priority').value==='all' || x.stars >= Number($('priority').value)) &&
+    familyOk &&
     locationOk &&
     ($('filterB').value==='all' || x.status === $('filterB').value);
-}
-function seedWikiTitle(x){return clean(x.wikiTitle || x.name).replace(/\s+/g,' ');}
-function seedImage(x){return wikiImageCache.get(seedWikiTitle(x)) || null;}
-function seedImageBlock(x){const img=seedImage(x); return img&&img.src ? '<div class="card-image"><img loading="lazy" src="'+esc(img.src)+'" alt="'+esc(x.name)+'"></div>' : '<div class="thumb-placeholder">Wikipedia image loading…</div>';}
-async function fetchSeedImages(){
-  const titles=[...new Set(seeds.map(seedWikiTitle).filter(Boolean))];
-  for(let i=0;i<titles.length;i+=8){
-    const batch=titles.slice(i,i+8);
-    const url='https://en.wikipedia.org/w/api.php?origin=*&format=json&action=query&redirects=1&prop=pageimages|info&inprop=url&piprop=thumbnail&pithumbsize=800&titles='+encodeURIComponent(batch.join('|'));
-    try{const res=await fetch(url); const data=await res.json(); const pages=Object.values((data.query&&data.query.pages)||{}); pages.forEach(p=>{if(p&&p.title){wikiImageCache.set(p.title,{src:p.thumbnail&&p.thumbnail.source?p.thumbnail.source:'',page:p.fullurl||''});}}); batch.forEach(t=>{if(!wikiImageCache.has(t)) wikiImageCache.set(t,{src:'',page:''});}); if(mode==='seeds') render();}catch(e){console.error(e);}
-  }
 }
 function render(){
   items=current();
@@ -146,13 +140,13 @@ function setMode(next){
   mode=next;
   $('plantsBtn').classList.toggle('active', mode==='plants');
   $('seedsBtn').classList.toggle('active', mode==='seeds');
-  $('search').value=''; $('priority').value='all'; $('filterA').value='all';
+  $('search').value=''; $('priority').value='all'; $('filterFamily').value='all'; $('filterA').value='all';
   fillFilters(); render();
 }
 $('plantsBtn').addEventListener('click', () => setMode('plants'));
 $('seedsBtn').addEventListener('click', () => setMode('seeds'));
 $('closeBtn').addEventListener('click', () => $('dlg').close());
-['search','priority','filterA','filterB'].forEach(id => {$(id).addEventListener('input', render); $(id).addEventListener('change', render);});
+['search','priority','filterFamily','filterA','filterB'].forEach(id => {$(id).addEventListener('input', render); $(id).addEventListener('change', render);});
 $('grid').addEventListener('click', (e) => {const card=e.target.closest('.card'); if(card) openItem(card.dataset.key);});
 (async function init(){
   try{
