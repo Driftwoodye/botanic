@@ -1,1 +1,0 @@
-@/mnt/data/images_350_q80_dataurl.csv
