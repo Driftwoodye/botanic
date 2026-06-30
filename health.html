@@ -8,7 +8,7 @@
 :root{--bg:#f6f3ec;--card:#fffaf1;--ink:#26231d;--muted:#756f63;--line:#ded4c1;--bad:#9f2d20;--warn:#9a6a00;--ok:#2c6d3f}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 header{padding:22px 18px;border-bottom:1px solid var(--line);background:#efe7d7}main{max-width:1180px;margin:0 auto;padding:18px}.top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
-h1{margin:0 0 6px;font-size:24px}.muted{color:var(--muted);font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap}button,a.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;border-radius:10px;text-decoration:none;font-weight:650;cursor:pointer}button:hover,a.btn:hover{background:#fff}
+h1{margin:0 0 6px;font-size:24px}.muted{color:var(--muted);font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap}button,a.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;border-radius:10px;text-decoration:none;font-weight:650;cursor:pointer}button:hover,a.btn:hover{background:#fff}button:disabled{opacity:.5;cursor:not-allowed}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.grid{grid-template-columns:1fr}}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.stat b{font-size:26px;display:block}.stat span{color:var(--muted);font-size:13px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:14px 0;overflow:hidden}.panel h2{font-size:18px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.panel .body{padding:12px 16px;overflow-x:auto}
@@ -26,6 +26,8 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;v
     <div class="actions">
       <a class="btn" href="./index.html">Back to catalogue</a>
       <button id="rerun">Run check</button>
+      <button id="copyReport" disabled>Copy report</button>
+      <button id="downloadReport" disabled>Download report</button>
     </div>
   </div>
 </header>
@@ -49,6 +51,7 @@ const files=[
   {kind:'seeds',path:'seeds.csv',id:'Seed Lot ID',name:'Scientific name',manualOnly:false},
   {kind:'seeds-extra',path:'seeds-extra.csv',id:'Seed Lot ID',name:'Scientific name',manualOnly:false}
 ];
+let lastReport=null;
 function parseCSV(text){
   const rows=[];let row=[],cell='',q=false;
   for(let i=0;i<text.length;i++){
@@ -76,9 +79,22 @@ function renderTable(el,cols,rows){
   if(!rows.length){el.innerHTML='<div class="empty">No problems found.</div>';return}
   el.innerHTML='<table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+String(r[c]??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
 }
+function buildReportText(){
+  if(!lastReport)return 'No report generated yet.';
+  return 'Driftwood Garden catalogue health report\nGenerated: '+lastReport.generatedAt+'\nURL: '+location.href+'\n\nSummary\n'+JSON.stringify(lastReport.summary,null,2)+'\n\nImage problems\n'+JSON.stringify(lastReport.imageProblems,null,2)+'\n\nBad fields\n'+JSON.stringify(lastReport.fieldProblems,null,2)+'\n\nDuplicate IDs\n'+JSON.stringify(lastReport.duplicateProblems,null,2)+'\n\nFiles loaded\n'+JSON.stringify(lastReport.filesLoaded,null,2);
+}
+async function copyReport(){
+  const text=buildReportText();
+  try{await navigator.clipboard.writeText(text);alert('Health report copied. Paste it into ChatGPT.')}catch(e){prompt('Copy this report:',text)}
+}
+function downloadReport(){
+  const blob=new Blob([buildReportText()],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='driftwood-garden-health-report.txt';a.click();URL.revokeObjectURL(a.href);
+}
 async function run(){
   const fileResults=[],items=[],images=new Map(),fileRows=[];
   document.querySelectorAll('.pill').forEach(x=>{x.className='pill warn';x.textContent='checking'});
+  document.getElementById('copyReport').disabled=true;document.getElementById('downloadReport').disabled=true;
   try{
     const img=await loadCSV('images.csv');
     fileRows.push({File:'images.csv',Status:'OK',Rows:img.records.length,Notes:''});
@@ -111,17 +127,20 @@ async function run(){
       if(!ok)imageProblems.push({Type:f.kind,ID:id,Name:sci,Problem:'No manual image and no Wikipedia fallback image found',Fix:'Set better Wikipedia title or add row to images.csv'});
     }
   }
-  document.getElementById('totalItems').textContent=items.length;
-  document.getElementById('totalIssues').textContent=imageProblems.length+fieldProblems.length+dupProblems.length;
-  document.getElementById('missingImages').textContent=imageProblems.length;
-  document.getElementById('duplicates').textContent=dupProblems.length;
+  const summary={recordsChecked:items.length,totalIssues:imageProblems.length+fieldProblems.length+dupProblems.length,missingImages:imageProblems.length,badFields:fieldProblems.length,duplicateIds:dupProblems.length};
+  lastReport={generatedAt:new Date().toISOString(),summary,imageProblems,fieldProblems,duplicateProblems:dupProblems,filesLoaded:fileRows};
+  document.getElementById('totalItems').textContent=summary.recordsChecked;
+  document.getElementById('totalIssues').textContent=summary.totalIssues;
+  document.getElementById('missingImages').textContent=summary.missingImages;
+  document.getElementById('duplicates').textContent=summary.duplicateIds;
   renderTable(document.getElementById('imageProblems'),['Type','ID','Name','Problem','Fix'],imageProblems);
   renderTable(document.getElementById('fieldProblems'),['Type','ID','Name','Problem'],fieldProblems);
   renderTable(document.getElementById('dupProblems'),['Type','ID','Problem','Files'],dupProblems);
   renderTable(document.getElementById('fileStatus'),['File','Status','Rows','Notes'],fileRows);
   for(const [id,n] of [['imageCount',imageProblems.length],['fieldCount',fieldProblems.length],['dupCount',dupProblems.length],['fileCount',fileRows.length]]){const e=document.getElementById(id);e.textContent=n;e.className='pill '+(n?'warn':'ok')}
+  document.getElementById('copyReport').disabled=false;document.getElementById('downloadReport').disabled=false;
 }
-document.getElementById('rerun').onclick=run;run();
+document.getElementById('rerun').onclick=run;document.getElementById('copyReport').onclick=copyReport;document.getElementById('downloadReport').onclick=downloadReport;run();
 </script>
 </body>
 </html>
