@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Driftwood Garden · Catalogue Health Check</title>
+<style>
+:root{--bg:#f6f3ec;--card:#fffaf1;--ink:#26231d;--muted:#756f63;--line:#ded4c1;--bad:#9f2d20;--warn:#9a6a00;--ok:#2c6d3f}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:22px 18px;border-bottom:1px solid var(--line);background:#efe7d7}main{max-width:1180px;margin:0 auto;padding:18px}.top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0 0 6px;font-size:24px}.muted{color:var(--muted);font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap}button,a.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;border-radius:10px;text-decoration:none;font-weight:650;cursor:pointer}button:hover,a.btn:hover{background:#fff}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.grid{grid-template-columns:1fr}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.stat b{font-size:26px;display:block}.stat span{color:var(--muted);font-size:13px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:14px 0;overflow:hidden}.panel h2{font-size:18px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.panel .body{padding:12px 16px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:8px 7px}th{white-space:nowrap;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}.pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:700}.bad{background:#f6d7d2;color:var(--bad)}.warn{background:#f3e3b5;color:var(--warn)}.ok{background:#d9eadc;color:var(--ok)}
+.small{font-size:12px;color:var(--muted)}code{background:#eee4d3;padding:2px 5px;border-radius:6px}.empty{padding:16px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <h1>Catalogue Health Check</h1>
+      <div class="muted">Finds missing images, duplicate IDs, bad common names, obsolete fields, and weak Wikipedia fallback data.</div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="./index.html">Back to catalogue</a>
+      <button id="rerun">Run check</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="grid">
+    <div class="stat"><b id="totalItems">–</b><span>Total records checked</span></div>
+    <div class="stat"><b id="totalIssues">–</b><span>Total issues</span></div>
+    <div class="stat"><b id="missingImages">–</b><span>Missing image fallbacks</span></div>
+    <div class="stat"><b id="duplicates">–</b><span>Duplicate IDs</span></div>
+  </div>
+
+  <section class="panel"><h2>Image problems <span id="imageCount" class="pill warn">checking</span></h2><div class="body" id="imageProblems"></div></section>
+  <section class="panel"><h2>Bad fields <span id="fieldCount" class="pill warn">checking</span></h2><div class="body" id="fieldProblems"></div></section>
+  <section class="panel"><h2>Duplicate IDs <span id="dupCount" class="pill warn">checking</span></h2><div class="body" id="dupProblems"></div></section>
+  <section class="panel"><h2>Files loaded <span id="fileCount" class="pill warn">checking</span></h2><div class="body" id="fileStatus"></div></section>
+</main>
+<script>
+const files=[
+  {kind:'plants',path:'owned-plants.csv',id:'Plant ID',name:'Scientific name',manualOnly:true},
+  {kind:'wishlist',path:'wishlist.csv',id:'Wishlist ID',name:'Scientific name',manualOnly:false},
+  {kind:'seeds',path:'seeds.csv',id:'Seed Lot ID',name:'Scientific name',manualOnly:false},
+  {kind:'seeds-extra',path:'seeds-extra.csv',id:'Seed Lot ID',name:'Scientific name',manualOnly:false}
+];
+function parseCSV(text){
+  const rows=[];let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(q){if(c==='"'&&n==='"'){cell+='"';i++}else if(c==='"'){q=false}else cell+=c}
+    else{if(c==='"')q=true;else if(c===','){row.push(cell);cell=''}else if(c==='\n'){row.push(cell);rows.push(row);row=[];cell=''}else if(c!=='\r')cell+=c}
+  }
+  if(cell.length||row.length){row.push(cell);rows.push(row)}
+  const head=rows.shift()||[];
+  return {head,records:rows.filter(r=>r.some(x=>String(x).trim())).map(r=>Object.fromEntries(head.map((h,i)=>[h,r[i]||''])))};
+}
+async function loadCSV(path){
+  const r=await fetch(path+'?v='+(Date.now()),{cache:'no-store'});
+  if(!r.ok)throw new Error(r.status+' '+r.statusText);
+  return parseCSV(await r.text());
+}
+async function wikiHasImage(title){
+  if(!title)return false;
+  const url='https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=300&titles='+encodeURIComponent(title);
+  try{const j=await fetch(url).then(r=>r.json());return Object.values(j.query?.pages||{}).some(p=>p.thumbnail?.source)}catch(e){return false}
+}
+function keyvals(row){return [row['Plant ID'],row['Wishlist ID'],row['Seed Lot ID'],row['Scientific name'],row['Wikipedia title']].filter(Boolean)}
+function same(a,b){return String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase()}
+function renderTable(el,cols,rows){
+  if(!rows.length){el.innerHTML='<div class="empty">No problems found.</div>';return}
+  el.innerHTML='<table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+String(r[c]??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+async function run(){
+  const fileResults=[],items=[],images=new Map(),fileRows=[];
+  document.querySelectorAll('.pill').forEach(x=>{x.className='pill warn';x.textContent='checking'});
+  try{
+    const img=await loadCSV('images.csv');
+    fileRows.push({File:'images.csv',Status:'OK',Rows:img.records.length,Notes:''});
+    for(const r of img.records){
+      const url=r['Image URL']; if(!url)continue;
+      for(const k of keyvals(r))images.set(k.trim().toLowerCase(),url);
+    }
+  }catch(e){fileRows.push({File:'images.csv',Status:'ERROR',Rows:'–',Notes:e.message})}
+  for(const f of files){
+    try{
+      const data=await loadCSV(f.path);
+      fileRows.push({File:f.path,Status:'OK',Rows:data.records.length,Notes:data.head.includes('Confidence')?'Obsolete Confidence column present':''});
+      fileResults.push({file:f,...data});
+      for(const r of data.records)items.push({file:f,head:data.head,row:r});
+    }catch(e){fileRows.push({File:f.path,Status:'ERROR',Rows:'–',Notes:e.message})}
+  }
+  const imageProblems=[],fieldProblems=[],dupProblems=[];
+  const ids=new Map();
+  for(const item of items){
+    const f=item.file,row=item.row,id=row[f.id]||'',sci=row[f.name]||row['Scientific name']||'',wiki=row['Wikipedia title']||sci;
+    if(id){const k=f.kind+':'+id;if(ids.has(k))dupProblems.push({Type:f.kind,ID:id,Problem:'Duplicate ID',Files:ids.get(k)+' and '+f.path});else ids.set(k,f.path)}
+    if(item.head.includes('Confidence'))fieldProblems.push({Type:f.kind,ID:id,Name:sci,Problem:'Obsolete Confidence column still present'});
+    for(const c of ['Common name EN','Common name DE','Common name PT']){
+      if(c in row && (!row[c]||same(row[c],sci)))fieldProblems.push({Type:f.kind,ID:id,Name:sci,Problem:c+' missing or identical to scientific name'});
+    }
+    let hasManual=false; for(const k of keyvals(row)){if(images.has(k.trim().toLowerCase()))hasManual=true}
+    if(f.manualOnly){if(!hasManual)imageProblems.push({Type:f.kind,ID:id,Name:sci,Problem:'No manual image in images.csv',Fix:'Add row to images.csv'})}
+    else if(!hasManual){
+      const ok=await wikiHasImage(wiki);
+      if(!ok)imageProblems.push({Type:f.kind,ID:id,Name:sci,Problem:'No manual image and no Wikipedia fallback image found',Fix:'Set better Wikipedia title or add row to images.csv'});
+    }
+  }
+  document.getElementById('totalItems').textContent=items.length;
+  document.getElementById('totalIssues').textContent=imageProblems.length+fieldProblems.length+dupProblems.length;
+  document.getElementById('missingImages').textContent=imageProblems.length;
+  document.getElementById('duplicates').textContent=dupProblems.length;
+  renderTable(document.getElementById('imageProblems'),['Type','ID','Name','Problem','Fix'],imageProblems);
+  renderTable(document.getElementById('fieldProblems'),['Type','ID','Name','Problem'],fieldProblems);
+  renderTable(document.getElementById('dupProblems'),['Type','ID','Problem','Files'],dupProblems);
+  renderTable(document.getElementById('fileStatus'),['File','Status','Rows','Notes'],fileRows);
+  for(const [id,n] of [['imageCount',imageProblems.length],['fieldCount',fieldProblems.length],['dupCount',dupProblems.length],['fileCount',fileRows.length]]){const e=document.getElementById(id);e.textContent=n;e.className='pill '+(n?'warn':'ok')}
+}
+document.getElementById('rerun').onclick=run;run();
+</script>
+</body>
+</html>
